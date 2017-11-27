@@ -53,7 +53,7 @@ functions:
           path: blacklists/{id}
           method: post
           cors: true
-          authorizer: ${self:custom.authorizer.user}
+          authorizer: ${self:custom.authorizer.users}
   delete_blacklist:
     handler: blacklists/delete_blacklist.delete_blacklist_item
     events:
