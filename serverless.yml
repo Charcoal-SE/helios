@@ -1,0 +1,215 @@
+service: smoke-detector-aws
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+plugins:
+  - serverless-aws-documentation
+
+provider:
+  name: aws
+  runtime: python3.6
+  region: us-east-1
+  environment:
+    BLACKLIST_TABLE: { "Ref": "DdbBlacklists" }
+    NOTIFICATIONS_TABLE: { "Ref": "DdbNotifications" }
+    ACCESSTOKENS_TABLE: { "Ref": "DdbAccessTokens" }
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["DdbBlacklists", "Arn"] }
+        - { "Fn::GetAtt": ["DdbNotifications", "Arn"] }
+        - { "Fn::GetAtt": ["DdbAccessTokens", "Arn"] }
+
+functions:
+  authorize_user:
+    handler: authorizers/users.authorize
+  authorize_metasmoke:
+    handler: authorizers/users.authorize_metasmoke
+  create_auth_token:
+    handler: authorizers/create_token.create_token
+    events:
+      - http:
+          path: auth/create
+          method: post
+          cors: true
+          authorizer: ${self:custom.authorizer.metasmoke}
+  list_blacklists:
+    handler: blacklists/list_blacklists.list_blacklist_by_type
+    events:
+      - http:
+          path: blacklists/{id}
+          method: get
+          cors: true
+  create_blacklist:
+    handler: blacklists/create_blacklist.create_blacklist_item
+    events:
+      - http:
+          path: blacklists/{id}
+          method: post
+          cors: true
+          authorizer: ${self:custom.authorizer.user}
+  delete_blacklist:
+    handler: blacklists/delete_blacklist.delete_blacklist_item
+    events:
+      - http:
+          path: blacklists/{id}
+          method: delete
+          cors: true
+          authorizer: ${self:custom.authorizer.users}
+  list_notifications:
+    handler: notifications/list_notifications.list_all_notifications
+    events:
+      - http:
+          path: notifications
+          method: get
+          cors: true
+  create_notification:
+    handler: notifications/create_notification.create_notification_item
+    events:
+      - http:
+          path: notifications
+          method: post
+          cors: true
+          authorizer: ${self:custom.authorizer.users}
+  delete_notification:
+    handler: notifications/delete_notification.delete_notification_item
+    events:
+      - http:
+          path: notifications
+          method: delete
+          cors: true
+          authorizer: ${self:custom.authorizer.users}
+
+custom:
+  authorizer:
+    users:
+      name: authorize_user
+      type: TOKEN
+      identitySource: method.request.header.Authorization
+      identityValidationExpression: (.*)
+      resultTtlInSeconds: 30
+    metasmoke:
+      name: authorize_user
+      type: TOKEN
+      identitySource: method.request.header.Authorization
+      identityValidationExpression: (.*)
+      resultTtlInSeconds: 30
+
+resources:
+  Resources:
+    DdbBlacklists:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+          - AttributeName: "type"
+            AttributeType: "S"
+          - AttributeName: "text_pattern"
+            AttributeType: "S"
+        GlobalSecondaryIndexes:
+          - IndexName: "text_pattern-index"
+            KeySchema:
+              - AttributeName: "text_pattern"
+                KeyType: "HASH"
+            Projection:
+              ProjectionType: "ALL"
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          - IndexName: "type-index"
+            KeySchema:
+              - AttributeName: "type"
+                KeyType: "HASH"
+            Projection:
+              ProjectionType: "ALL"
+            ProvisionedThroughput:
+              ReadCapacityUnits: 2
+              WriteCapacityUnits: 1
+        KeySchema:
+          - AttributeName: "id"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 1
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-blacklists
+    DdbNotifications:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "user_server_room_site"
+            AttributeType: "S"
+          - AttributeName: "user_id"
+            AttributeType: "N"
+          - AttributeName: "server"
+            AttributeType: "S"
+          - AttributeName: "room_id"
+            AttributeType: "N"
+          - AttributeName: "site"
+            AttributeType: "S"
+        GlobalSecondaryIndexes:
+          - IndexName: "user_id-index"
+            KeySchema:
+              - AttributeName: "user_id"
+                KeyType: "HASH"
+            Projection:
+              ProjectionType: "ALL"
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          - IndexName: "server-index"
+            KeySchema:
+              - AttributeName: "server"
+                KeyType: "HASH"
+            Projection:
+              ProjectionType: "ALL"
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          - IndexName: "room_id-index"
+            KeySchema:
+              - AttributeName: "room_id"
+                KeyType: "HASH"
+            Projection:
+              ProjectionType: "ALL"
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          - IndexName: "site-index"
+            KeySchema:
+              - AttributeName: "site"
+                KeyType: "HASH"
+            Projection:
+              ProjectionType: "ALL"
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        KeySchema:
+          - AttributeName: "user_server_room_site"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-notifications
+    DdbAccessTokens:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "token"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "token"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-tokens
