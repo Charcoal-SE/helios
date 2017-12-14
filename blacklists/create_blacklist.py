@@ -54,7 +54,7 @@ def create_blacklist_item(event, context):
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             log.debug("Duplicate entry attempted. {}".format(item))
             error_type = "Duplicate"
-            error_msg = "Duplicate entry attempted.".format(item)
+            error_msg = "Duplicate entry attempted. {}".format(item)
         else:   # Anything other than a duplicate entry, raise the exception
             raise
 
