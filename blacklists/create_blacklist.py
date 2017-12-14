@@ -46,9 +46,9 @@ def create_blacklist_item(event, context):
         'modified_at': unixtime,
     }
     error_msg = ""
+    body = item
     try:
         table.put_item(Item=item, Expected={'id': {'Exists': False}})
-        body = item
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             log.debug("Duplicate entry attempted. {}".format(item))
@@ -56,7 +56,6 @@ def create_blacklist_item(event, context):
         else:   # Anything other than a duplicate entry, raise the exception
             raise
 
-    body_response = {}
     response = {
         'statusCode': 200,
         'body': json.dumps({
