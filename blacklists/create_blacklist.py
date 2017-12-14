@@ -56,9 +56,10 @@ def create_blacklist_item(event, context):
         else:   # Anything other than a duplicate entry, raise the exception
             raise
 
+    body_response = {}
     response = {
         'statusCode': 200,
-        'body': json.dumps(
+        'body': json.dumps({
             'items': [body],
             'numItems': 1,
             'message': error_msg
