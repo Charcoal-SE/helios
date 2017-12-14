@@ -42,12 +42,14 @@ def delete_blacklist_item(event, context):
             'id': uuid
         }
     )
+    error_type = None
     response = {
         'statusCode': 200,
         'body': json.dumps({
             'items': [],
             'numItems': 0,
-            'message': "Deleted {}".format(data['pattern'])
+            'message': "Deleted {}".format(data['pattern']),
+            'error_type': error_type
         })
     }
     log.debug("Response: {}".format(response))

@@ -17,12 +17,15 @@ def list_blacklist_by_type(event, context):
     result = table.scan(
         FilterExpression=Attr('type').eq(blacklist_type)
     )
-
+    error_type = None
+    error_msg = ""
     response = {
         'statusCode': 200,
         'body': json.dumps({
             'items': [r['text_pattern'] for r in result['Items']],
-            'numItems': len(result['Items'])
+            'numItems': len(result['Items']),
+            'message': error_msg,
+            'error_type': error_type
         })
     }
     log.debug(response)

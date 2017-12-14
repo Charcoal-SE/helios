@@ -23,7 +23,8 @@ def list_all_notifications(event, context):
     result = table.scan(
         FilterExpression=Attr('enabled').eq(True)
     )
-
+    error_type = None
+    error_msg = ""
     items = [
         {
             'user_id': int(r['user_id']),
@@ -35,7 +36,9 @@ def list_all_notifications(event, context):
         'statusCode': 200,
         'body': json.dumps({
             'items': items,
-            'numItems': len(items)
+            'numItems': len(items),
+            'message': error_msg,
+            'error_type': error_type
         }, default=decimal_default)
     }
     log.debug(response)

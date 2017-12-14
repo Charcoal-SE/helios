@@ -52,16 +52,19 @@ def create_notification_item(event, context):
         'modified_at': unixtime,
         'enabled': True
     }
-
+    error_type = None
+    error_msg = ""
+    body = item
     try:
         table.put_item(Item=item, Expected={'user_server_room_site': {'Exists': False}})
-        body = item
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             log.debug("Duplicate entry attempted. {}".format(item))
-            body = "Duplicate entry attempted. {}".format(item)
+            error_type = "Duplicate"
+            error_msg = error_msg = "Duplicate entry attempted. {}".format(item)
         else:   # Anything other than a duplicate entry, raise the exception
             raise
+
     response = {
         'statusCode': 200,
         'body': json.dumps({

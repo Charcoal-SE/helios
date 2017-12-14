@@ -53,12 +53,16 @@ def delete_notification_item(event, context):
             ':val2': unixtime
         }
     )
+    error_type = None
+    error_msg = ""    
     response = {
         'statusCode': 200,
         'body': json.dumps({
             'items': [],
             'numItems': 0,
-            'message': "Deleted {}".format(delete_key)
+            'message': "Deleted {}".format(delete_key),
+            'message': error_msg,
+            'error_type': error_type
         })
     }
     log.debug("Response: {}".format(response))
