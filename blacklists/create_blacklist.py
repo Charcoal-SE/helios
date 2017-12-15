@@ -31,8 +31,8 @@ def create_item_dict(data, event):
         log.info("Errors: {}".format(errors))
         error_msg = ' | '.join(str(e) for e in zip(*errors)[1])
     else:
-        error_type = None
-        error_msg = None
+        error_type = ""
+        error_msg = ""
     item = {
         'id': item_id,
         'type': blacklist_type,
