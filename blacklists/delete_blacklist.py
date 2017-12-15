@@ -18,7 +18,7 @@ def delete_blacklist_item(event, context):
         log.error("Delete Blacklist Validation Failed. Passed data: {}".format(
             data
         ))
-        raise Exception("Couldn't create the blacklist item.")
+        raise Exception("Couldn't delete the blacklist item.")
         return
 
     # modified_by is the authorized user
