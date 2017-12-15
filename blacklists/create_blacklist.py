@@ -112,6 +112,11 @@ def create_blacklist_item(event, context):
     item = create_item_dict(data, event)
     log.info("Item to create: {}".format(item))
 
+    item_errors = item['message']
+    item_error_types = item['error_type']
+    item.pop('error_type')
+    item.pop('message')
+
     try:
         table.put_item(Item=item, Expected={'id': {'Exists': False}})
     except ClientError as e:
@@ -125,14 +130,13 @@ def create_blacklist_item(event, context):
             error_type = "Unknown"
             error_msg = "Unknown error. {}".format(item)
 
-    error_msg = " | ".join((item['message'], error_msg))
-    if item['error_type'] and error_type:
+    error_msg = " | ".join((item_errors, error_msg))
+    if item_error_types and error_type:
         error_type = "multiple"
     else:
         error_type = item['error_type'] if item['error_type'] else error_type
 
-    item.pop('error_type')
-    item.pop('message')
+
 
     response = {
         'statusCode': 200,
