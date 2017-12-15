@@ -110,6 +110,7 @@ def create_blacklist_item(event, context):
     log.info("Data received: {}".format(data))
     table = dynamodb.Table(os.environ['BLACKLIST_TABLE'])
     item = create_item_dict(data, event)
+    log.info("Item to create: {}".format(item))
 
     try:
         table.put_item(Item=item, Expected={'id': {'Exists': False}})
