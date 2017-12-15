@@ -108,7 +108,7 @@ def create_blacklist_item(event, context):
     error_msg = ""
     error_type = ""
     log.info("Data received: {}".format(data))
-
+    table = dynamodb.Table(os.environ['BLACKLIST_TABLE'])
     item = create_item_dict(data, event)
 
     try:
