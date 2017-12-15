@@ -74,7 +74,7 @@ def extract_item_parameters(data, event):
         log.error("New Blacklist Validation Failed. Passed data: {}".format(
             data
         ))
-        request_user = "None passed"
+        user_profile = "None passed"
         errors.append(("no_chat_link", "No request user profile link passed. Unable to create blacklist item"))
     else:
         user_profile = data['chat_link']
