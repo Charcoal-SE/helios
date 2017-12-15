@@ -74,7 +74,7 @@ def extract_item_parameters(data, event):
     errors = []
     blacklist_type = str(event['pathParameters']['id'])
     if 'pattern' not in data:
-        log.error("New Blacklist Validation Failed. Passed data: {}".format(
+        log.error("Pattern not in data. Passed data: {}".format(
             data
         ))
         pattern = "None passed"
@@ -82,15 +82,15 @@ def extract_item_parameters(data, event):
     else:
         pattern = data['pattern']
     if 'request_user' not in data:
-        log.error("New Blacklist Validation Failed. Passed data: {}".format(
+        log.error("Request user not in data Passed data: {}".format(
             data
         ))
         request_user = "None passed"
         errors.append(("no_request_user", "No request user passed. Unable to create blacklist item"))
     else:
-        user_add = data['request_user']
+        request_user = data['request_user']
     if 'chat_link' not in data:
-        log.error("New Blacklist Validation Failed. Passed data: {}".format(
+        log.error("chat link not in data. Passed data: {}".format(
             data
         ))
         user_profile = "None passed"
@@ -99,7 +99,7 @@ def extract_item_parameters(data, event):
         user_profile = data['chat_link']
 
     item_id = "{type}-{pattern}".format(type=blacklist_type, pattern=data['pattern'])
-    return item_id, blacklist_type, pattern, user_add, user_profile, errors
+    return item_id, blacklist_type, pattern, request_user, user_profile, errors
 
 
 def create_blacklist_item(event, context):
@@ -107,6 +107,7 @@ def create_blacklist_item(event, context):
     authorizer = event['requestContext']['authorizer']
     error_msg = ""
     error_type = ""
+    log.info("Data received: {}".format(data))
 
     item = create_item_dict(data, event)
 
