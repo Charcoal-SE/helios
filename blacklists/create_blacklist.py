@@ -127,6 +127,7 @@ def create_blacklist_item(event, context):
         else:   # Anything other than a duplicate entry, raise the exception
             log.error("Unknown error at blacklist entry. {}".format(item))
             log.error("Exception: {}".format(e.response['Error']['Code']))
+            log.error("Exception: {}".format(e))
             error_type = "Unknown"
             error_msg = "Unknown error. {}".format(item)
 
@@ -134,9 +135,7 @@ def create_blacklist_item(event, context):
     if item_error_types and error_type:
         error_type = "multiple"
     else:
-        error_type = item['error_type'] if item['error_type'] else error_type
-
-
+        error_type = item_error_types if item_error_types else error_type
 
     response = {
         'statusCode': 200,
