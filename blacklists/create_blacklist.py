@@ -125,7 +125,7 @@ def create_blacklist_item(event, context):
             error_type = "Unknown"
             error_msg = "Unknown error. {}".format(item)
 
-    error_msg = " | ".join((item['error_msg'], error_msg))
+    error_msg = " | ".join((item['message'], error_msg))
     if item['error_type'] and error_type:
         error_type = "multiple"
     else:
