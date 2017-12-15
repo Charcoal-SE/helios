@@ -20,6 +20,7 @@ def create_item_dict(data, event):
     event: The event data
     """
     item_id, blacklist_type, text_pattern, user_add, user_profile, errors = extract_item_parameters(data, event)
+    authorizer = extract_authorizer(event)
     d = datetime.datetime.utcnow()
     unixtime = int(d.timestamp())
     if errors:
@@ -40,9 +41,27 @@ def create_item_dict(data, event):
         'created_at': unixtime,
         'modified_at': unixtime,
         'error_type': error_type,
-        'message': error_msg
+        'message': error_msg,
+        'smokey_token': authorizer,
     }
     return item
+
+
+def extract_authorizer(event):
+    """
+    Get the authorizer associated with this request
+
+    event: The event context
+    """
+    authorizer = event['requestContext']['authorizer']
+    if 'user' not in authorizer:
+        log.warn("'user' not found in authorizer: {}".format(authorizer))
+        smokey_token = 'Unknown'
+    else:
+        log.debug("smokey_token set: {}".format(authorizer['user']))
+        smokey_token = authorizer['user']
+
+    return smokey_token
 
 
 def extract_item_parameters(data, event):
@@ -89,7 +108,7 @@ def create_blacklist_item(event, context):
     error_msg = ""
     error_type = ""
 
-    item = create_item_dict(data, authorizer, event)
+    item = create_item_dict(data, event)
 
     try:
         table.put_item(Item=item, Expected={'id': {'Exists': False}})
