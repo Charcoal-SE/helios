@@ -132,7 +132,7 @@ def create_blacklist_item(event, context):
         error_type = item['error_type'] if item['error_type'] else error_type
 
     item.pop('error_type')
-    item.pop('error_msg')
+    item.pop('message')
 
     response = {
         'statusCode': 200,
