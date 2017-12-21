@@ -12,7 +12,7 @@ log.setLevel(logging.DEBUG)
 dynamodb = boto3.resource('dynamodb')
 
 def delete_blacklist_item(event, context):
-    text_pattern, blacklist_type, errors = extract_item_parameters(data, event)
+    item_id, blacklist_type, text_pattern, user_add, user_profile, errors = extract_item_parameters(data, event)
     authorizer = extract_authorizer(event)
 
     table = dynamodb.Table(os.environ['BLACKLIST_TABLE'])
@@ -20,7 +20,7 @@ def delete_blacklist_item(event, context):
         FilterExpression=Attr('text_pattern').eq(text_pattern) & Attr('type').eq(blacklist_type)
     )
     log.info("Deleting: {}".format(response))
-    log.info("Delete requested by: {}".format(authorizer))
+    log.info("Delete requested by: {} ({})".format(user_add, user_profile))
     uuid = response['Items'][0]['id']
     table.delete_item(
         Key={
@@ -77,5 +77,22 @@ def extract_item_parameters(data, event):
     else:
         pattern = data['pattern']
 
+    if 'request_user' not in data:
+        log.error("Request user not in data Passed data: {}".format(
+            data
+        ))
+        request_user = "None passed"
+        errors.append(("no_request_user", "No request user passed. Unable to create blacklist item"))
+    else:
+        request_user = data['request_user']
+    if 'chat_link' not in data:
+        log.error("chat link not in data. Passed data: {}".format(
+            data
+        ))
+        user_profile = "None passed"
+        errors.append(("no_chat_link", "No request user profile link passed. Unable to create blacklist item"))
+    else:
+        user_profile = data['chat_link']
+
     item_id = "{type}-{pattern}".format(type=blacklist_type, pattern=data['pattern'])
-    return item_id, blacklist_type, errors
+    return item_id, blacklist_type, pattern, request_user, user_profile, errors
