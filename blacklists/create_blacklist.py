@@ -37,7 +37,7 @@ def create_item_dict(data, event):
         'id': item_id,
         'type': blacklist_type,
         'text_pattern': text_pattern,
-        'added_by_token': user_add,
+        'added_by': user_add,
         'created_at': unixtime,
         'modified_at': unixtime,
         'error_type': error_type,

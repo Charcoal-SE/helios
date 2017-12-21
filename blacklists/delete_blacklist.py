@@ -12,30 +12,15 @@ log.setLevel(logging.DEBUG)
 dynamodb = boto3.resource('dynamodb')
 
 def delete_blacklist_item(event, context):
-    data = json.loads(event['body'])
-    authorizer = event['requestContext']['authorizer']
-    if 'pattern' not in data:
-        log.error("Delete Blacklist Validation Failed. Passed data: {}".format(
-            data
-        ))
-        raise Exception("Couldn't delete the blacklist item.")
-        return
-
-    # modified_by is the authorized user
-    if 'user' not in authorizer:
-        log.warn("User not found in authorizer: {}".format(authorizer))
-        modified_by = 'Unknown'
-    else:
-        log.debug("User set: {}".format(authorizer['user']))
-        modified_by = authorizer['user']
+    text_pattern, blacklist_type, errors = extract_item_parameters(data, event)
+    authorizer = extract_authorizer(event)
 
     table = dynamodb.Table(os.environ['BLACKLIST_TABLE'])
-    blacklist_type = str(event['pathParameters']['id'])
     response = table.scan(
-        FilterExpression=Attr('text_pattern').eq(data['pattern']) & Attr('type').eq(blacklist_type)
+        FilterExpression=Attr('text_pattern').eq(text_pattern) & Attr('type').eq(blacklist_type)
     )
     log.info("Deleting: {}".format(response))
-    log.info("Delete requested by: {}".format(modified_by))
+    log.info("Delete requested by: {}".format(authorizer))
     uuid = response['Items'][0]['id']
     table.delete_item(
         Key={
@@ -49,8 +34,48 @@ def delete_blacklist_item(event, context):
             'items': [],
             'numItems': 0,
             'message': "Deleted {}".format(data['pattern']),
-            'error_type': error_type
+            'error_type': error_type,
+            'message': error_msg,
         })
     }
     log.debug("Response: {}".format(response))
     return response
+
+
+def extract_authorizer(event):
+    """
+    Get the authorizer associated with this request
+
+    event: The event context
+    """
+    authorizer = event['requestContext']['authorizer']
+    if 'user' not in authorizer:
+        log.warn("'user' not found in authorizer: {}".format(authorizer))
+        smokey_token = 'Unknown'
+    else:
+        log.debug("smokey_token set: {}".format(authorizer['user']))
+        smokey_token = authorizer['user']
+
+    return smokey_token
+
+
+def extract_item_parameters(data, event):
+    """
+    Extract the parameters we'll use for delete an item
+
+    data: Data array passed to the lambda
+    event: Event array passed to the lambda
+    """
+    errors = []
+    blacklist_type = str(event['pathParameters']['id'])
+    if 'pattern' not in data:
+        log.error("Pattern not in data. Passed data: {}".format(
+            data
+        ))
+        pattern = "None passed"
+        errors.append(("bad_data", "No pattern passed. Unable to create blacklist item"))
+    else:
+        pattern = data['pattern']
+
+    item_id = "{type}-{pattern}".format(type=blacklist_type, pattern=data['pattern'])
+    return item_id, blacklist_type, errors
