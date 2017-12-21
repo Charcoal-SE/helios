@@ -119,6 +119,7 @@ def create_blacklist_item(event, context):
 
     try:
         table.put_item(Item=item, Expected={'id': {'Exists': False}})
+        log.info("Blacklist Add Successful. Type: {} Blacklist Pattern: {}".format(item['type'], item['text_pattern']))
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             log.debug("Duplicate entry attempted. {}".format(item))

@@ -27,6 +27,7 @@ def delete_blacklist_item(event, context):
             'id': uuid
         }
     )
+    log.info("Blacklist Delete Successful. Type: {} Blacklist Pattern: {}".format(blacklist_type, text_pattern))
     error_type = None
     response = {
         'statusCode': 200,
