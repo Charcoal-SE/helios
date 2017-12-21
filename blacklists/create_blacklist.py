@@ -104,7 +104,6 @@ def extract_item_parameters(data, event):
 
 def create_blacklist_item(event, context):
     data = json.loads(event['body'])
-    authorizer = event['requestContext']['authorizer']
     error_msg = ""
     error_type = ""
     log.info("Data received: {}".format(data))

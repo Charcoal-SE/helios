@@ -12,6 +12,8 @@ log.setLevel(logging.DEBUG)
 dynamodb = boto3.resource('dynamodb')
 
 def delete_blacklist_item(event, context):
+    data = json.loads(event['body'])
+    authorizer = event['requestContext']['authorizer']
     item_id, blacklist_type, text_pattern, user_add, user_profile, errors = extract_item_parameters(data, event)
     authorizer = extract_authorizer(event)
 
