@@ -38,7 +38,6 @@ def delete_blacklist_item(event, context):
             'numItems': 0,
             'message': "Deleted {}".format(data['pattern']),
             'error_type': error_type,
-            'message': error_msg,
         })
     }
     log.debug("Response: {}".format(response))
