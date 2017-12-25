@@ -110,7 +110,7 @@ All endpoints will return a JSON object with the following format:
 
     {
       'items': [array of items],
-      'numItems': integer of the number of items in the above array,
+      'num_items': integer of the number of items in the above array,
       'message': An option message that indicate an error may of occurred
     }
 

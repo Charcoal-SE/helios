@@ -51,7 +51,7 @@ def create_token(event, context):
         'statusCode': 200,
         'body': json.dumps({
             'items': [item],
-            'numItems': len([item])
+            'num_items': len([item])
         })
     }
     log.debug("Token: {}".format(response))

@@ -23,7 +23,7 @@ def list_blacklist_by_type(event, context):
         'statusCode': 200,
         'body': json.dumps({
             'items': [r['text_pattern'] for r in result['Items']],
-            'numItems': len(result['Items']),
+            'num_items': len(result['Items']),
             'message': error_msg,
             'error_type': error_type
         })

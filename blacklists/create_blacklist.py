@@ -141,7 +141,7 @@ def create_blacklist_item(event, context):
         'statusCode': 200,
         'body': json.dumps({
             'items': [item],
-            'numItems': 1,
+            'num_items': 1,
             'message': error_msg,
             'error_type': error_type
         })
