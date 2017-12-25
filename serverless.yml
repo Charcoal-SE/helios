@@ -7,7 +7,7 @@ plugins:
 provider:
   name: aws
   runtime: python3.6
-  region: us-east-1
+  region: us-east-2
   environment:
     BLACKLIST_TABLE: { "Ref": "DdbBlacklists" }
     NOTIFICATIONS_TABLE: { "Ref": "DdbNotifications" }
