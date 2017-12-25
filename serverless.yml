@@ -7,7 +7,8 @@ plugins:
 provider:
   name: aws
   runtime: python3.6
-  region: us-east-2
+  region: ${env:AWS_REGION, 'us-east-1'}
+  stage: ${env:AWS_STAGE, 'dev'}
   environment:
     BLACKLIST_TABLE: { "Ref": "DdbBlacklists" }
     NOTIFICATIONS_TABLE: { "Ref": "DdbNotifications" }
