@@ -1,5 +1,7 @@
 Originally posted [here](https://gist.github.com/AWegnerGitHub/f17e4f65c089712f888de429323cd86b)
 
+Current deploy: [![Deploy Status](https://travis-ci.org/Charcoal-SE/helios.svg?branch=master)](https://travis-ci.org/Charcoal-SE/helios)
+
 
 ## Table of Contents
 
