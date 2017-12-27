@@ -69,7 +69,7 @@ def create_notification_item(event, context):
         'statusCode': 200,
         'body': json.dumps({
             'items': [body],
-            'numItems': 1
+            'num_items': 1
         })
     }
     log.debug("Response: {}".format(response))

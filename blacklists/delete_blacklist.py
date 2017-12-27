@@ -35,7 +35,7 @@ def delete_blacklist_item(event, context):
         'statusCode': 200,
         'body': json.dumps({
             'items': [],
-            'numItems': 0,
+            'num_items': 0,
             'message': "Deleted {}".format(data['pattern']),
             'error_type': error_type,
         })
