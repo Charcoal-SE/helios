@@ -29,7 +29,7 @@ def create_item_dict(data, event):
         else:
             error_type = errors[0]
         log.info("Errors: {}".format(errors))
-        error_msg = ' | '.join(str(e) for e in zip(*errors)[1])
+        error_msg = ' | '.join(str(e[1]) for e in errors)
     else:
         error_type = ""
         error_msg = ""
