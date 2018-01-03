@@ -63,6 +63,12 @@ functions:
           method: delete
           cors: true
           authorizer: ${self:custom.authorizer.users}
+  blacklist_error:
+    handler: blacklists/blacklist_errors.invalid_path
+    events:
+      - http:
+          path: blacklists/
+          method: any
   list_notifications:
     handler: notifications/list_notifications.list_all_notifications
     events:
