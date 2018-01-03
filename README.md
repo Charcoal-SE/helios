@@ -17,7 +17,7 @@ Current deploy: [![Deploy Status](https://travis-ci.org/Charcoal-SE/helios.svg?b
 ## What is this?
 
 This document describes the proposed architecture for a central SmokeDetector
-databsae. As a proof of concept, there are a few areas that are not finished
+database. As a proof of concept, there are a few areas that are not finished
 but these are described in the [Work to do](#work-to-do) section.
 
 This project is tentatively named *Helios*.
