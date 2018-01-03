@@ -2,7 +2,7 @@ import logging
 import json
 
 
-def create_blacklist_item(event, context):
+def invalid_path(event, context):
     """
     Defines the error that is thrown if someone hits the naked blacklist/ endpoint
     without an {id}
